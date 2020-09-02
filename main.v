@@ -1,11 +1,14 @@
 module main (
     input clk_50M,
     input signal,
+    input key_reverse,
+    
     output reg clk_rec,
     output reg [15:0] clk_freq=16'd801
 );
     
     wire clk_200M;
+    wire key_rev_out;
     
     reg curr_clk_reset_flag=0;
     reg interval_reg;
@@ -14,11 +17,19 @@ module main (
     reg [15:0] curr_clk_counter;
 
     reg [3:0] curr_clk_duration_counter;
+    
+    reg key_rev_reg=1;
 
     clkGen clkGen( // generate 200Mhz clock as the base clock
         .inclk0(clk_50M),
         .c0(clk_200M)
 	);
+    
+    key key_rev(
+        .clk(clk_50M),
+        .key_in(key_reverse),
+        .key_out(key_rev_out)
+    );
     
     always @(posedge clk_200M) begin
         if(interval_reg!=signal) begin //edge detected
@@ -50,6 +61,9 @@ module main (
         else if(curr_clk_reset_flag==1 && curr_clk_counter<(clk_freq/8)) begin
             curr_clk_counter=0;
         end
+        if(key_rev_out==0 &&key_rev_reg!=key_rev_out) begin
+            clk_rec=!clk_rec;
+        end
+        key_rev_reg=key_rev_out;
     end
-
 endmodule
