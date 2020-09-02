@@ -25,13 +25,12 @@ module main (
     
     always @(posedge clk_200M) begin
         if(interval_reg!=signal) begin //edge detected
-            if(interval_counter<curr_clk_threshold) begin // get the smallest duration
-                curr_clk_threshold=interval_counter;
-                curr_clk_threshold=0;
-                curr_clk_duration_counter=0;
+            if(interval_counter<curr_clk_threshold) begin // get the smallest interval
+                curr_clk_threshold=interval_counter; // put the smallest interval
+                curr_clk_duration_counter=0; // duration set to 0 since the interval has been updated
             end
-            else
-                curr_clk_duration_counter=curr_clk_duration_counter+1;
+            else // edge, but the interval will not change
+                curr_clk_duration_counter=curr_clk_duration_counter+1; // add duratino
             interval_counter=0;
             if(curr_clk_duration_counter==12'hfff) begin // try to add threshold after 4096 edges
                 curr_clk_threshold=curr_clk_threshold+1;
