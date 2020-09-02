@@ -47,9 +47,8 @@ module main (
             curr_clk_counter=0;
             clk_rec=!clk_rec;
         end
-        else if(curr_clk_reset_flag==1 && curr_clk_counter>=(clk_freq/16)) begin
+        else if(curr_clk_reset_flag==1) begin
             curr_clk_counter=0;
-            clk_rec=!clk_rec;
         end
     end
 
