@@ -13,7 +13,7 @@ module main (
 
     reg [15:0] curr_clk_counter;
 
-    reg [7:0] curr_clk_duration_counter;
+    reg [3:0] curr_clk_duration_counter;
 
     clkGen clkGen( // generate 200Mhz clock as the base clock
         .inclk0(clk_50M),
@@ -29,9 +29,8 @@ module main (
             else // edge, but the interval will not change
                 curr_clk_duration_counter=curr_clk_duration_counter+1; // add duratino
             interval_counter=0;
-            if(curr_clk_duration_counter==8'b11111111) begin // try to add threshold after 4096 edges
+            if(curr_clk_duration_counter==4'b1111) begin // try to add threshold after 4096 edges
                 clk_freq=clk_freq+1;
-                curr_clk_duration_counter=0;
             end
             curr_clk_reset_flag=1;
         end
