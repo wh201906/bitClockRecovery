@@ -1,22 +1,24 @@
 module main (
     input clk_50M,
     input signal,
-    input key_reverse,
+    input key_rev,
     
     output reg clk_rec,
     output reg [15:0] clk_freq=16'd801
 );
+    reg signal_reg;
     
     wire clk_200M;
+    wire clk_200M_global;
     wire key_rev_out;
     
-    reg curr_clk_reset_flag=1'b0;
-    reg interval_reg;
     reg [15:0] interval_counter;
+    
+    reg clk_reset_flag=1'b0;
 
-    reg [15:0] curr_clk_counter;
+    reg [15:0] clk_counter;
 
-    reg [3:0] curr_clk_duration_counter;
+    reg [3:0] clk_stable_counter;
     
     reg key_rev_reg=1'b1;
 
@@ -25,48 +27,53 @@ module main (
         .c0(clk_200M)
 	);
     
-    key key_rev(
+    globalClock u0 (
+        .inclk  (clk_200M),
+        .outclk (clk_200M_global)
+    );
+    
+    key keyRev(
         .clk(clk_50M),
-        .key_in(key_reverse),
+        .key_in(key_rev),
         .key_out(key_rev_out)
     );
     
-    always @(posedge clk_200M) begin
-        if(interval_reg!=signal) begin //edge detected
+    always @(posedge clk_200M_global) begin
+        if(signal_reg!=signal) begin //edge detected
             if(interval_counter<clk_freq) begin // get the smallest interval
                 clk_freq=interval_counter; // put the smallest interval
-                curr_clk_duration_counter=4'd0; // duration set to 0 since the interval has been updated
+                clk_stable_counter=4'd0; // duration set to 0 since the interval has been updated
                 
             end
             else begin // edge, but the interval will not change
-                curr_clk_duration_counter=curr_clk_duration_counter+4'd1; // add duration
+                clk_stable_counter=clk_stable_counter+4'd1; // add duration
             end
             interval_counter=16'd0;
-            if(curr_clk_duration_counter==4'b1111) begin // try to add threshold after 16 edges
+            if(clk_stable_counter==4'b1111) begin // try to add threshold after 16 edges
                 clk_freq=clk_freq+16'd1;
             end
-            curr_clk_reset_flag=1'b1;
+            clk_reset_flag=1'b1;
         end
         else begin
             interval_counter=interval_counter+16'd1;
-            curr_clk_reset_flag=1'b0;
+            clk_reset_flag=1'b0;
         end
-        interval_reg=signal;
+        signal_reg=signal;
     end
 
-    always @(posedge clk_200M) begin // clock out
-        curr_clk_counter=curr_clk_counter+16'd1;
-        if(curr_clk_counter>=(clk_freq/2)) begin
-            curr_clk_counter=16'd0;
+    always @(posedge clk_200M_global) begin // clock out
+        clk_counter=clk_counter+16'd1;
+        if(clk_counter>=(clk_freq/2)) begin
+            clk_counter=16'd0;
             clk_rec=!clk_rec;
         end
-        else if(curr_clk_reset_flag==1'b1 && curr_clk_counter<(clk_freq/8)) begin
-            curr_clk_counter=16'd0;
+        else if(clk_reset_flag==1'b1 && clk_counter<(clk_freq/8)) begin
+            clk_counter=16'd0;
         end
         if(key_rev_out==0 && key_rev_reg!=key_rev_out) begin
             clk_rec=!clk_rec;
         end
-        key_rev_reg<=key_rev_out;
+        key_rev_reg=key_rev_out;
     end
         
 endmodule

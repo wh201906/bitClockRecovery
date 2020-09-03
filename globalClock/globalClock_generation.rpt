@@ -1,0 +1,18 @@
+Info: Starting: Create HDL design files for synthesis
+Info: qsys-generate E:\Documents\source\quartus\bitClockRecovery\globalClock.qsys --synthesis=VERILOG --output-directory=E:\Documents\source\quartus\bitClockRecovery\globalClock\synthesis --family="Cyclone IV E" --part=EP4CE6F17C8
+Progress: Loading bitClockRecovery/globalClock.qsys
+Progress: Reading input file
+Progress: Adding altclkctrl_0 [altclkctrl 18.1]
+Progress: Parameterizing module altclkctrl_0
+Progress: Building connections
+Progress: Parameterizing connections
+Progress: Validating
+Progress: Done reading input file
+: globalClock.altclkctrl_0: Targeting device family: Cyclone IV E.
+: globalClock.altclkctrl_0: Global clock network allows a clock signal to reach all parts of the chip with the same amount of skew. Input port 'clkselect' can be used to switch between four clock inputs.
+Info: globalClock: Generating globalClock "globalClock" for QUARTUS_SYNTH
+Info: altclkctrl_0: Generating top-level entity globalClock_altclkctrl_0.
+Info: altclkctrl_0: "globalClock" instantiated altclkctrl "altclkctrl_0"
+Info: globalClock: Done "globalClock" with 2 modules, 2 files
+Info: qsys-generate succeeded.
+Info: Finished: Create HDL design files for synthesis
