@@ -17,7 +17,10 @@ module main (
     wire key_rev_out;
     wire key_type_out;
     
-    reg [15:0] interval_counter;
+    reg [16:0] interval_counter;
+    reg [15:0] interval_counter_pos;
+    reg [15:0] interval_counter_neg;
+    reg edge_state=0;
     
     reg clk_reset_flag=1'b0;
 
@@ -51,22 +54,41 @@ module main (
     
     always @(posedge clk_200M_global) begin
         if(signal_reg!=signal) begin //edge detected
+            if(signal==0) begin // negedge
+                edge_state=0;
+            end
+            else begin // posedge
+                edge_state=1;
+            end
+
+            interval_counter=(interval_counter_pos+interval_counter_neg)>>1;
             if(interval_counter<clk_freq) begin // get the smallest interval
                 clk_freq=interval_counter; // put the smallest interval
                 clk_stable_counter=4'd0; // duration set to 0 since the interval has been updated
-                
             end
             else begin // edge, but the interval will not change
                 clk_stable_counter=clk_stable_counter+4'd1; // add duration
             end
-            interval_counter=16'd0;
+
+            if(edge_state==0) begin
+                interval_counter_neg=16'd0;
+            end
+            else begin
+                interval_counter_pos=16'd0;
+            end
+
             if(clk_stable_counter==4'b1111) begin // try to add threshold after 16 edges
                 clk_freq=clk_freq+16'd1;
             end
             clk_reset_flag=1'b1;
         end
         else begin
-            interval_counter=interval_counter+16'd1;
+            if(edge_state==0) begin
+                interval_counter_neg=interval_counter_neg+16'd1;
+            end
+            else begin
+                interval_counter_pos=interval_counter_pos+16'd1;
+            end
             clk_reset_flag=1'b0;
         end
         signal_reg=signal;
@@ -78,7 +100,7 @@ module main (
             clk_counter=16'd0;
             clk_rec=!clk_rec;
         end
-        else if(clk_reset_flag==1'b1 && clk_counter<(clk_freq/8)) begin
+        else if(clk_reset_flag==1'b1 && clk_counter<(clk_freq>>3)) begin
             clk_counter=16'd0;
         end
         if(key_rev_out==0 && key_rev_reg!=key_rev_out) begin
