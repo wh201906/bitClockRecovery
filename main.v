@@ -12,8 +12,8 @@ module main (
     reg key_type_reg;
     reg type_reg=0;
     
-    wire clk_200M;
-    wire clk_200M_global;
+    wire clk_300M;
+    wire clk_300M_global;
     wire key_rev_out;
     wire key_type_out;
     
@@ -26,18 +26,18 @@ module main (
 
     reg [15:0] clk_counter;
 
-    reg [3:0] clk_stable_counter;
+    reg [11:0] clk_stable_counter;
     
     reg key_rev_reg=1'b1;
 
-    clkGen clkGen( // generate 200Mhz clock as the base clock
+    clkGen clkGen( // generate 300Mhz clock as the base clock
         .inclk0(clk_50M),
-        .c0(clk_200M)
+        .c0(clk_300M)
 	);
     
     globalClock u0 (
-        .inclk  (clk_200M),
-        .outclk (clk_200M_global)
+        .inclk  (clk_300M),
+        .outclk (clk_300M_global)
     );
     
     key keyRev(
@@ -52,7 +52,7 @@ module main (
         .key_out(key_type_out)
     );
     
-    always @(posedge clk_200M_global) begin
+    always @(posedge clk_300M_global) begin
         if(signal_reg!=signal) begin //edge detected
             if(signal==0) begin // negedge
                 edge_state=0;
@@ -64,10 +64,10 @@ module main (
             interval_counter=(interval_counter_pos+interval_counter_neg)>>1;
             if(interval_counter<clk_freq) begin // get the smallest interval
                 clk_freq=interval_counter; // put the smallest interval
-                clk_stable_counter=4'd0; // duration set to 0 since the interval has been updated
+                clk_stable_counter=12'd0; // duration set to 0 since the interval has been updated
             end
             else begin // edge, but the interval will not change
-                clk_stable_counter=clk_stable_counter+4'd1; // add duration
+                clk_stable_counter=clk_stable_counter+12'd1; // add duration
             end
 
             if(edge_state==0) begin
@@ -77,7 +77,7 @@ module main (
                 interval_counter_pos=16'd0;
             end
 
-            if(clk_stable_counter==4'b1111) begin // try to add threshold after 16 edges
+            if(clk_stable_counter==12'hfff) begin // try to add threshold after 16 edges
                 clk_freq=clk_freq+16'd1;
             end
             clk_reset_flag=1'b1;
@@ -94,7 +94,7 @@ module main (
         signal_reg=signal;
     end
 
-    always @(posedge clk_200M_global) begin // clock out
+    always @(posedge clk_300M_global) begin // clock out
         clk_counter=clk_counter+16'd1;
         if(((clk_counter>=(clk_freq/2)) && type_reg==0) || (clk_counter>=clk_freq && type_reg==1)) begin
             clk_counter=16'd0;
@@ -109,7 +109,7 @@ module main (
         key_rev_reg=key_rev_out;
     end
     
-    always @(posedge clk_200M_global) begin
+    always @(posedge clk_300M_global) begin
         if(key_type_out==0 && key_type_reg!=key_type_out) begin
             type_reg=!type_reg;
         end

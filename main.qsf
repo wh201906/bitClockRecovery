@@ -88,7 +88,6 @@ set_global_assignment -name ROUTER_TIMING_OPTIMIZATION_LEVEL MAXIMUM
 set_global_assignment -name MUX_RESTRUCTURE OFF
 set_location_assignment PIN_M15 -to key_rev
 set_global_assignment -name QIP_FILE globalClock/synthesis/globalClock.qip
-set_global_assignment -name QSYS_FILE globalClock.qsys
 set_global_assignment -name VERILOG_FILE main.v
 set_global_assignment -name VERILOG_FILE key.v
 set_global_assignment -name QIP_FILE clkGen.qip
