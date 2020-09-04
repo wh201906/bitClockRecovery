@@ -2,15 +2,20 @@ module main (
     input clk_50M,
     input signal,
     input key_rev,
+    input key_type,
     
     output reg clk_rec,
-    output reg [15:0] clk_freq=16'd801
+    output reg [15:0] clk_freq=16'd801,
+    output test_led
 );
     reg signal_reg;
+    reg key_type_reg;
+    reg type_reg=0;
     
     wire clk_200M;
     wire clk_200M_global;
     wire key_rev_out;
+    wire key_type_out;
     
     reg [15:0] interval_counter;
     
@@ -38,6 +43,12 @@ module main (
         .key_out(key_rev_out)
     );
     
+    key keyType(
+        .clk(clk_50M),
+        .key_in(key_type),
+        .key_out(key_type_out)
+    );
+    
     always @(posedge clk_200M_global) begin
         if(signal_reg!=signal) begin //edge detected
             if(interval_counter<clk_freq) begin // get the smallest interval
@@ -63,7 +74,7 @@ module main (
 
     always @(posedge clk_200M_global) begin // clock out
         clk_counter=clk_counter+16'd1;
-        if(clk_counter>=(clk_freq/2)) begin
+        if(((clk_counter>=(clk_freq/2)) && type_reg==0) || (clk_counter>=clk_freq && type_reg==1)) begin
             clk_counter=16'd0;
             clk_rec=!clk_rec;
         end
@@ -75,5 +86,14 @@ module main (
         end
         key_rev_reg=key_rev_out;
     end
+    
+    always @(posedge clk_200M_global) begin
+        if(key_type_out==0 && key_type_reg!=key_type_out) begin
+            type_reg=!type_reg;
+        end
+        key_type_reg=key_type_out;
+    end
+        
+    assign test_led=type_reg;
         
 endmodule
