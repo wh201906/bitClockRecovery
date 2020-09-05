@@ -10,7 +10,7 @@ module main(
 );
     reg signal_reg;
     reg key_type_reg;
-    reg type_reg=0;
+    reg type_reg=1'b0;
     
     wire clk_300M;
     wire clk_300M_global;
@@ -74,21 +74,21 @@ module main(
 
     always @(posedge clk_300M_global) begin // clock out
         clk_counter=clk_counter+16'd1;
-        if(((clk_counter>=(clk_freq/2)) && type_reg==0) || (clk_counter>=clk_freq && type_reg==1)) begin
+        if(((clk_counter>=(clk_freq>>1)) && type_reg==1'b0) || (clk_counter>=clk_freq && type_reg==1'b1)) begin
             clk_counter=16'd0;
             clk_rec=!clk_rec;
         end
-        else if(clk_reset_flag==1'b1 && clk_counter<(clk_freq/8)) begin
+        else if(clk_reset_flag==1'b1 && clk_counter<(clk_freq>>3)) begin
             clk_counter=16'd0;
         end
-        if(key_rev_out==0 && key_rev_reg!=key_rev_out) begin
+        if(key_rev_out==1'b0 && key_rev_reg!=key_rev_out) begin
             clk_rec=!clk_rec;
         end
         key_rev_reg=key_rev_out;
     end
     
     always @(posedge clk_300M_global) begin
-        if(key_type_out==0 && key_type_reg!=key_type_out) begin
+        if(key_type_out==1'b0 && key_type_reg!=key_type_out) begin
             type_reg=!type_reg;
         end
         key_type_reg=key_type_out;
