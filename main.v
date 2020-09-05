@@ -50,7 +50,7 @@ module main(
     );
     
     always @(posedge clk_300M_global) begin
-        if(signal_reg!=signal) begin //edge detected
+        if(signal_reg!=signal && signal==1'b1) begin //edge detected
             if(interval_counter<clk_freq) begin // get the smallest interval
                 clk_freq=interval_counter; // put the smallest interval
                 clk_stable_counter=4'd0; // duration set to 0 since the interval has been updated
