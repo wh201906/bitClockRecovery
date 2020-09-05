@@ -1,4 +1,4 @@
-module main (
+module main(
     input clk_50M,
     input signal,
     input key_rev,
