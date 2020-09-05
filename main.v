@@ -5,7 +5,7 @@ module main (
     input key_type,
     
     output reg clk_rec,
-    output reg [31:0] clk_freq=32'd801,
+    output clk_rec_test,
     output test_led
 );
     reg signal_reg;
@@ -17,9 +17,12 @@ module main (
     wire key_rev_out;
     wire key_type_out;
     
+    reg [31:0] clk_freq=32'd801;
     reg [32:0] interval_counter;
     reg [31:0] interval_counter_pos;
     reg [31:0] interval_counter_neg;
+    reg [31:0] interval_counter_pos_reg;
+    reg [31:0] interval_counter_neg_reg;
     reg edge_state=1'b0;
     
     reg clk_reset_flag=1'b0;
@@ -56,19 +59,23 @@ module main (
         if(signal_reg!=signal) begin //edge detected
             if(signal==0) begin // negedge
                 edge_state=1'b0;
+                if(interval_counter_pos<interval_counter_pos_reg) begin
+                    interval_counter_pos_reg=interval_counter_pos;
+                    clk_stable_counter=12'd0;
+                end
             end
             else begin // posedge
                 edge_state=1'b1;
+                if(interval_counter_neg<interval_counter_neg_reg) begin
+                    interval_counter_neg_reg=interval_counter_neg;
+                    clk_stable_counter=12'd0;
+                end
             end
-
-            interval_counter=(interval_counter_pos+interval_counter_neg)>>1'b1;
-            if(interval_counter<clk_freq) begin // get the smallest interval
-                clk_freq=interval_counter; // put the smallest interval
-                clk_stable_counter=12'd0; // duration set to 0 since the interval has been updated
-            end
-            else begin // edge, but the interval will not change
+            if(clk_stable_counter!=12'd0) begin
                 clk_stable_counter=clk_stable_counter+12'd1; // add duration
             end
+            interval_counter=(interval_counter_pos_reg+interval_counter_neg_reg)>>1'b1;
+            clk_freq=interval_counter;
 
             if(edge_state==1'b0) begin
                 interval_counter_neg=32'd0;
@@ -78,7 +85,8 @@ module main (
             end
 
             if(clk_stable_counter==12'hfff) begin // try to add threshold after 16 edges
-                clk_freq=clk_freq+32'd1;
+                interval_counter_neg_reg=interval_counter_neg_reg+32'd1;
+                interval_counter_pos_reg=interval_counter_pos_reg+32'd1;
             end
             clk_reset_flag=1'b1;
         end
@@ -117,5 +125,6 @@ module main (
     end
         
     assign test_led=type_reg;
+    assign clk_rec_test=clk_rec;
         
 endmodule

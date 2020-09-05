@@ -59,22 +59,6 @@ set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_RO
 set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
 set_location_assignment PIN_E1 -to clk_50M
 set_location_assignment PIN_P1 -to clk_rec
-set_location_assignment PIN_A2 -to clk_freq[0]
-set_location_assignment PIN_A3 -to clk_freq[1]
-set_location_assignment PIN_A4 -to clk_freq[2]
-set_location_assignment PIN_A5 -to clk_freq[3]
-set_location_assignment PIN_A6 -to clk_freq[4]
-set_location_assignment PIN_A7 -to clk_freq[5]
-set_location_assignment PIN_A8 -to clk_freq[6]
-set_location_assignment PIN_A9 -to clk_freq[7]
-set_location_assignment PIN_A10 -to clk_freq[8]
-set_location_assignment PIN_A11 -to clk_freq[9]
-set_location_assignment PIN_A12 -to clk_freq[10]
-set_location_assignment PIN_A13 -to clk_freq[11]
-set_location_assignment PIN_D6 -to clk_freq[12]
-set_location_assignment PIN_E7 -to clk_freq[13]
-set_location_assignment PIN_C8 -to clk_freq[14]
-set_location_assignment PIN_E8 -to clk_freq[15]
 set_location_assignment PIN_T14 -to signal
 set_global_assignment -name SMART_RECOMPILE ON
 set_global_assignment -name TIMING_ANALYZER_MULTICORNER_ANALYSIS ON
