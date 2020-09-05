@@ -5,9 +5,12 @@ module main(
     input key_type,
     
     output reg clk_rec,
-    output reg [15:0] clk_freq=16'd801,
+    output reg [CLK_LEN-1:0] clk_freq=801,
     output test_led
 );
+    localparam CLK_LEN=16;
+    localparam STABLE_LEN=4;
+    
     reg signal_reg;
     reg key_type_reg;
     reg type_reg=1'b0;
@@ -17,13 +20,14 @@ module main(
     wire key_rev_out;
     wire key_type_out;
     
-    reg [15:0] interval_counter;
+    reg [CLK_LEN-1:0] interval_counter;
+    reg interval_counter_overflow=1'b0;
     
     reg clk_reset_flag=1'b0;
 
-    reg [15:0] clk_counter;
+    reg [CLK_LEN-1:0] clk_counter;
 
-    reg [3:0] clk_stable_counter;
+    reg [STABLE_LEN-1:0] clk_stable_counter;
     
     reg key_rev_reg=1'b1;
 
@@ -51,35 +55,39 @@ module main(
     
     always @(posedge clk_300M_global) begin
         if(signal_reg!=signal) begin //edge detected
-            if(interval_counter<clk_freq) begin // get the smallest interval
+            if(interval_counter_overflow==1'b0 && interval_counter<clk_freq) begin // get the smallest interval
                 clk_freq=interval_counter; // put the smallest interval
                 clk_stable_counter=4'd0; // duration set to 0 since the interval has been updated
-                
+            end
+            else if(interval_counter_overflow==1'b1) begin // clean overflow flag
+                interval_counter_overflow=1'b0;
             end
             else begin // edge, but the interval will not change
                 clk_stable_counter=clk_stable_counter+4'd1; // add duration
             end
-            interval_counter=16'd0;
-            if(clk_stable_counter==4'b1111) begin // try to add threshold after 16 edges
-                clk_freq=clk_freq+16'd1;
+            interval_counter=0;
+            if(clk_stable_counter=={STABLE_LEN{1'b1}}) begin // try to add threshold after 16 edges
+                clk_freq=clk_freq+1;
             end
             clk_reset_flag=1'b1;
         end
         else begin
-            interval_counter=interval_counter+16'd1;
+            if(interval_counter=={CLK_LEN{1'b1}})
+                interval_counter_overflow=1'b1;
+            interval_counter=interval_counter+1;
             clk_reset_flag=1'b0;
         end
         signal_reg=signal;
     end
 
     always @(posedge clk_300M_global) begin // clock out
-        clk_counter=clk_counter+16'd1;
+        clk_counter=clk_counter+1;
         if(((clk_counter>=(clk_freq>>1)) && type_reg==1'b0) || (clk_counter>=clk_freq && type_reg==1'b1)) begin
-            clk_counter=16'd0;
+            clk_counter=0;
             clk_rec=!clk_rec;
         end
         else if(clk_reset_flag==1'b1 && clk_counter<(clk_freq>>3)) begin
-            clk_counter=16'd0;
+            clk_counter=0;
         end
         if(key_rev_out==1'b0 && key_rev_reg!=key_rev_out) begin
             clk_rec=!clk_rec;
