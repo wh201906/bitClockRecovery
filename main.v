@@ -2,25 +2,25 @@ module main(
     input clk_50M,
     input signal,
     input key_rev,
-    input key_type,
+    input key_clk_type,
     
     output reg clk_rec,
     output reg [CLK_LEN-1:0] clk_freq,
-    output test_led
+    output clk_type_led
 );
 
     localparam CLK_LEN=32;
     localparam STABLE_LEN=4;
     
     reg signal_reg;
-    reg key_type_reg;
-    reg type_reg=1'b0;
+    reg key_clk_type_reg;
+    reg clk_type_reg=1'b0;
     reg [1:0] clk_delta=1'b1;
     
     wire clk_300M;
     wire clk_300M_global;
     wire key_rev_out;
-    wire key_type_out;
+    wire key_clk_type_out;
     
     reg [CLK_LEN-1:0] interval_counter;
     
@@ -48,10 +48,10 @@ module main(
         .key_out(key_rev_out)
     );
     
-    key keyType(
+    key keyclk_type(
         .clk(clk_50M),
-        .key_in(key_type),
-        .key_out(key_type_out)
+        .key_in(key_clk_type),
+        .key_out(key_clk_type_out)
     );
     
     reg counter_state=4'b0001;
@@ -102,16 +102,16 @@ module main(
     end
     
     always @(posedge clk_300M_global) begin
-        if(key_type_out==1'b0 && key_type_reg!=key_type_out) begin
-            type_reg<=~type_reg;
+        if(key_clk_type_out==1'b0 && key_clk_type_reg!=key_clk_type_out) begin
+            clk_type_reg<=~clk_type_reg;
         end
-        if(type_reg==1'b1)
+        if(clk_type_reg==1'b1)
             clk_delta=2'b1;
         else
             clk_delta=2'd2;
-        key_type_reg<=key_type_out;
+        key_clk_type_reg<=key_clk_type_out;
     end
         
-    assign test_led=type_reg;
+    assign clk_type_led=clk_type_reg;
         
 endmodule
