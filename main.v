@@ -9,7 +9,7 @@ module main(
     output test_led
 );
 
-    localparam CLK_LEN=24;
+    localparam CLK_LEN=32;
     localparam STABLE_LEN=4;
     
     reg signal_reg;
@@ -57,9 +57,6 @@ module main(
     reg counter_state=4'b0001;
     
     always @(posedge clk_300M_global) begin
-        if(signal_reg!=signal) begin
-            clk_reset_flag<=1'b1;
-        end
         if(signal_reg!=signal && signal==1'b0) begin //edge detected
             if(interval_counter<clk_freq) begin // get the smallest interval
                 clk_freq<=interval_counter; // put the smallest interval
@@ -73,6 +70,7 @@ module main(
             if(clk_stable_counter=={STABLE_LEN{1'b1}}) begin // try to add threshold after 16 edges
                 clk_freq<=clk_freq+1;
             end
+            clk_reset_flag<=1'b1;
         end
         else begin
             if(interval_counter<{CLK_LEN{1'b1}})
@@ -84,16 +82,18 @@ module main(
 
     always @(posedge clk_300M_global) begin // clock out
         clk_counter<=clk_counter+clk_delta;
+        if(clk_reset_flag==1'b1) begin
+            if(clk_counter<(clk_freq>>2)) begin
+                clk_counter<=0;
+            end
+            else if(clk_counter>(clk_freq>>2)) begin
+                clk_counter<=0;
+                clk_rec<=~clk_rec;
+            end
+        end
         if(clk_counter>=(clk_freq>>1)) begin
             clk_counter<=0;
             clk_rec<=~clk_rec;
-        end
-        else if(clk_reset_flag==1'b1 && clk_counter<(clk_freq>>2)) begin
-            clk_counter<=0;
-        end
-        else if(clk_reset_flag==1'b1 && clk_counter>({CLK_LEN{1'b1}})-(clk_freq>>2)) begin
-            clk_counter<=0;
-            //clk_rec<=~clk_rec;
         end
         if(key_rev_out==1'b0 && key_rev_reg!=key_rev_out) begin
             clk_rec<=~clk_rec;
