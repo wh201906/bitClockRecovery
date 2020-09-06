@@ -3,10 +3,12 @@ module main(
     input signal,
     input key_rev,
     input key_clk_type,
+    input key_edge_type,
     
     output reg clk_rec,
     output reg [CLK_LEN-1:0] clk_freq,
-    output clk_type_led
+    output clk_type_led,
+    output edge_type_led
 );
 
     localparam CLK_LEN=32;
@@ -16,11 +18,14 @@ module main(
     reg key_clk_type_reg;
     reg clk_type_reg=1'b0;
     reg [1:0] clk_delta=1'b1;
+    reg key_edge_type_reg;
+    reg edge_type_reg=1'b0;
     
     wire clk_300M;
     wire clk_300M_global;
     wire key_rev_out;
     wire key_clk_type_out;
+    wire key_edge_type_out;
     
     reg [CLK_LEN-1:0] interval_counter;
     
@@ -48,16 +53,22 @@ module main(
         .key_out(key_rev_out)
     );
     
-    key keyclk_type(
+    key keyClkType(
         .clk(clk_50M),
         .key_in(key_clk_type),
         .key_out(key_clk_type_out)
     );
     
+    key keyEdgeType(
+        .clk(clk_50M),
+        .key_in(key_edge_type),
+        .key_out(key_edge_type_out)
+    );
+    
     reg counter_state=4'b0001;
     
     always @(posedge clk_300M_global) begin
-        if(signal_reg!=signal && signal==1'b0) begin //edge detected
+        if(signal_reg!=signal && signal==edge_type_reg) begin //edge detected
             if(interval_counter<clk_freq) begin // get the smallest interval
                 clk_freq<=interval_counter; // put the smallest interval
                 clk_stable_counter<=0; // duration set to 0 since the interval has been updated
@@ -111,7 +122,15 @@ module main(
             clk_delta=2'd2;
         key_clk_type_reg<=key_clk_type_out;
     end
+    
+    always @(posedge clk_300M_global) begin
+        if(key_edge_type_out==1'b0 && key_edge_type_reg!=key_edge_type_out) begin
+            edge_type_reg<=~edge_type_reg;
+        end
+        key_edge_type_reg<=key_edge_type_out;
+    end
         
     assign clk_type_led=clk_type_reg;
+    assign edge_type_led=edge_type_reg;
         
 endmodule

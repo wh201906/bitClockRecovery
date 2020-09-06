@@ -10,14 +10,14 @@ module key ( // delay for 50ms
     always @(posedge clk) begin
         if(counter==22'd2_500_000) begin
 //        else if(counter==22'd2_5) begin
-            key_out=last_st;
-            counter=22'd0;
+            key_out<=last_st;
+            counter<=22'd0;
         end
         else if(key_in==last_st)
-            counter=counter+22'd1;
+            counter<=counter+22'd1;
         else
-            counter=22'd0;
-		last_st=key_in;
+            counter<=22'd0;
+		last_st<=key_in;
     end
     
 endmodule
