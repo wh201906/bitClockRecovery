@@ -53,7 +53,10 @@ module main(
     );
     
     always @(posedge clk_300M_global) begin
-        if(signal_reg!=signal) begin //edge detected
+        if(signal_reg!=signal) begin
+            clk_reset_flag=1'b1;
+        end
+        if(signal_reg!=signal && signal==1'b0) begin //edge detected
             if(interval_counter<clk_freq) begin // get the smallest interval
                 clk_freq=interval_counter; // put the smallest interval
                 clk_stable_counter=0; // duration set to 0 since the interval has been updated
@@ -66,10 +69,10 @@ module main(
             if(clk_stable_counter=={STABLE_LEN{1'b1}}) begin // try to add threshold after 16 edges
                 clk_freq++;
             end
-            clk_reset_flag=1'b1;
         end
         else begin
-            interval_counter++;
+            //if(interval_counter<{CLK_LEN{1'b1}})
+                interval_counter++;
             clk_reset_flag=1'b0;
         end
         signal_reg=signal;
