@@ -94,7 +94,7 @@ module main(
     always @(posedge clk_300M_global) begin // clock out
         clk_counter<=clk_counter+clk_delta;
         if(clk_reset_flag==1'b1) begin
-            if(clk_counter<(clk_freq>>3)) begin
+            if(clk_counter<(clk_freq>>2)) begin
                 clk_counter<=0;
             end
             else if(clk_counter>=(clk_freq>>3)) begin
