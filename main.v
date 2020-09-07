@@ -86,7 +86,7 @@ module main(
             if(clk_counter<(clk_freq>>2)) begin
                 clk_counter<=0;
             end
-            else if(clk_counter>(clk_freq>>2)) begin
+            else if(clk_counter>=(clk_freq>>2)) begin
                 clk_counter<=0;
                 clk_rec<=~clk_rec;
             end
