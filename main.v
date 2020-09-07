@@ -1,26 +1,18 @@
 module main(
     input clk_50M,
     input signal,
-    input key_rev,
-    input key_clk_type,
     
     output reg clk_rec,
-    output reg [CLK_LEN-1:0] clk_freq,
-    output clk_type_led
+    output reg [CLK_LEN-1:0] clk_freq
 );
 
     localparam CLK_LEN=32;
     localparam STABLE_LEN=4;
     
     reg signal_reg;
-    reg key_clk_type_reg;
-    reg clk_type_reg=1'b0;
-    reg [1:0] clk_delta=1'b1;
     
     wire clk_300M;
     wire clk_300M_global;
-    wire key_rev_out;
-    wire key_clk_type_out;
     
     reg [CLK_LEN-1:0] interval_counter;
     
@@ -29,8 +21,6 @@ module main(
     reg [CLK_LEN-1:0] clk_counter;
 
     reg [STABLE_LEN-1:0] clk_stable_counter;
-    
-    reg key_rev_reg=1'b1;
 
     clkGen clkGen( // generate 300Mhz clock as the base clock
         .inclk0(clk_50M),
@@ -41,19 +31,6 @@ module main(
         .inclk  (clk_300M),
         .outclk (clk_300M_global)
     );
-    
-    key keyRev(
-        .clk(clk_50M),
-        .key_in(key_rev),
-        .key_out(key_rev_out)
-    );
-    
-    key keyclk_type(
-        .clk(clk_50M),
-        .key_in(key_clk_type),
-        .key_out(key_clk_type_out)
-    );
-    
     reg counter_state=4'b0001;
     
     always @(posedge clk_300M_global) begin
@@ -81,12 +58,12 @@ module main(
     end
 
     always @(posedge clk_300M_global) begin // clock out
-        clk_counter<=clk_counter+clk_delta;
+        clk_counter<=clk_counter+2;
         if(clk_reset_flag==1'b1) begin
             if(clk_counter<(clk_freq>>2)) begin
                 clk_counter<=0;
             end
-            else if(clk_counter>(clk_freq>>2)) begin
+            else if(clk_counter>=(clk_freq>>2)) begin
                 clk_counter<=0;
                 clk_rec<=~clk_rec;
             end
@@ -95,23 +72,6 @@ module main(
             clk_counter<=0;
             clk_rec<=~clk_rec;
         end
-        if(key_rev_out==1'b0 && key_rev_reg!=key_rev_out) begin
-            clk_rec<=~clk_rec;
-        end
-        key_rev_reg<=key_rev_out;
     end
-    
-    always @(posedge clk_300M_global) begin
-        if(key_clk_type_out==1'b0 && key_clk_type_reg!=key_clk_type_out) begin
-            clk_type_reg<=~clk_type_reg;
-        end
-        if(clk_type_reg==1'b1)
-            clk_delta=2'b1;
-        else
-            clk_delta=2'd2;
-        key_clk_type_reg<=key_clk_type_out;
-    end
-        
-    assign clk_type_led=clk_type_reg;
         
 endmodule
