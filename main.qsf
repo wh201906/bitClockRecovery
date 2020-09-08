@@ -96,4 +96,36 @@ set_global_assignment -name VECTOR_WAVEFORM_FILE Waveform1.vwf
 set_global_assignment -name OPTIMIZATION_MODE "AGGRESSIVE PERFORMANCE"
 set_location_assignment PIN_M16 -to key_clk_type
 set_location_assignment PIN_E10 -to clk_type_led
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to key_rev
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to key_clk_type
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to signal
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to clk_freq[1]
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to clk_freq[6]
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to clk_freq[10]
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to clk_freq[9]
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to clk_freq[17]
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to clk_freq[18]
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to clk_rec
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to clk_freq[5]
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to clk_freq[11]
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to clk_freq[2]
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to clk_freq[7]
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to clk_freq[12]
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to clk_freq[14]
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to clk_freq[15]
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to clk_freq[16]
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to clk_freq[19]
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to clk_freq[20]
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to clk_freq[21]
+set_instance_assignment -name IO_STANDARD "1.2 V" -to clk_freq[22]
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to clk_freq[23]
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to clk_freq[0]
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to clk_freq[8]
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to clk_freq[13]
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to clk_freq[26]
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to clk_freq[25]
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to clk_freq[24]
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to clk_freq[4]
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to clk_freq[3]
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to clk_type_led
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
