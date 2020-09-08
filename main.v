@@ -1,6 +1,7 @@
 module main(
     input clk_50M,
     input signal,
+    input key_rev,
     
     output reg clk_rec,
     output reg [CLK_LEN-1:0] clk_freq
@@ -13,6 +14,7 @@ module main(
     
     wire clk_300M;
     wire clk_300M_global;
+    wire key_rev_out;
     
     reg [CLK_LEN-1:0] interval_counter;
     
@@ -22,6 +24,8 @@ module main(
 
     reg [STABLE_LEN-1:0] clk_stable_counter;
 
+    reg key_rev_reg=1'b1;
+    
     clkGen clkGen( // generate 300Mhz clock as the base clock
         .inclk0(clk_50M),
         .c0(clk_300M)
@@ -31,6 +35,13 @@ module main(
         .inclk  (clk_300M),
         .outclk (clk_300M_global)
     );
+    
+    key keyRev(
+        .clk(clk_300M_global),
+        .key_in(key_rev),
+        .key_out(key_rev_out)
+    );
+    
     reg counter_state=4'b0001;
     
     always @(posedge clk_300M_global) begin
@@ -72,6 +83,10 @@ module main(
             clk_counter<=0;
             clk_rec<=~clk_rec;
         end
+        if(key_rev_out==1'b0 && key_rev_reg!=key_rev_out) begin
+            clk_rec<=~clk_rec;
+        end
+        key_rev_reg<=key_rev_out;
     end
         
 endmodule
